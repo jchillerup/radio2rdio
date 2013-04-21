@@ -7,8 +7,6 @@ if __name__ == "__main__":
     radio = OneLoveFM()
     rdio = RdioClient()
 
-    rdio.authenticate()
-    
     cmd = ""
     while cmd != "exit":
         cmd = raw_input("> ")
