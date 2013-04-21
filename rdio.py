@@ -1,8 +1,7 @@
 __author__ = 'jch'
 
 import oauth2 as oauth
-import urllib
-import json
+import urllib, json, cgi
 from credentials import API_KEY, API_SS
 
 class RdioClient(object):
@@ -12,12 +11,28 @@ class RdioClient(object):
 
     def __init__(self):
         # Set up the OAuth business
-        consumer = oauth.Consumer(API_KEY, API_SS)
-        self.client = oauth.Client(consumer)
+        self.consumer = oauth.Consumer(API_KEY, API_SS)
+        self.client = oauth.Client(self.consumer)
 
-    def authenticate():
+    def authenticate(self):
         # http://developer.rdio.com/docs/rest/oauth
-        response = self.call("request_token", {"request_token": "oob"});
+        response, content = self.client.request("http://api.rdio.com/oauth/request_token", "POST", urllib.urlencode({"oauth_callback": "oob"}));
+        parsed_content = dict(cgi.parse_qsl(content))
+        request_token = oauth.Token(parsed_content['oauth_token'], parsed_content['oauth_token_secret'])
+
+        print 'Authorize this application at: %s?oauth_token=%s' % (parsed_content['login_url'], parsed_content['oauth_token'])
+        oauth_verifier = raw_input('Enter the PIN / OAuth verifier: ').strip()
+        # associate the verifier with the request token
+        request_token.set_verifier(oauth_verifier)
+        
+        # upgrade the request token to an access token
+        tmp_client = oauth.Client(self.consumer, request_token)
+        response, content = tmp_client.request('http://api.rdio.com/oauth/access_token', 'POST')
+        parsed_content = dict(cgi.parse_qsl(content))
+        access_token = oauth.Token(parsed_content['oauth_token'], parsed_content['oauth_token_secret'])
+
+        self.client = oauth.Client(self.consumer, access_token);
+        
         
     def call(self, method, data=dict()):
         payload = data
