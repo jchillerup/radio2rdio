@@ -4,8 +4,8 @@ from onelove import OneLoveFM
 from rdio import RdioClient
 
 if __name__ == "__main__":
-    radio = OneLoveFM()
     rdio = RdioClient()
+    radio = OneLoveFM(rdio.add_best_match)
 
     cmd = ""
     while cmd != "exit":

@@ -97,4 +97,8 @@ class RdioClient(object):
     def add_song_to_playlist(self, song):
         if song is not None:
             response = self.call("addToPlaylist", {"playlist": self.playlist, "tracks": song})
+
+    def add_best_match(self, term):
+        match = self.get_best_match(term)
+        self.add_song_to_playlist(match);
         
