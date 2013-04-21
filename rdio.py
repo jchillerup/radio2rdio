@@ -15,6 +15,10 @@ class RdioClient(object):
         consumer = oauth.Consumer(API_KEY, API_SS)
         self.client = oauth.Client(consumer)
 
+    def authenticate():
+        # http://developer.rdio.com/docs/rest/oauth
+        response = self.call("request_token", {"request_token": "oob"});
+        
     def call(self, method, data=dict()):
         payload = data
         payload["method"] = method
@@ -44,5 +48,5 @@ class RdioClient(object):
         return response["result"]["results"][0]["key"]
 
     def add_song_to_playlist(self, song):
-        response = self.call("addToPlaylist", {"playlist": self.playlist, "tracks": [song]})
+        response = self.call("addToPlaylist", {"playlist": self.playlist, "tracks": song})
         print response
