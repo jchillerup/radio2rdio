@@ -12,4 +12,4 @@ class OneLoveFM(object):
 
         cur_song = [div.text for div in soup.find_all("div", attrs={"id": "track-1"})]
 
-        return cur_song
+        return cur_song[0]

@@ -1,7 +1,7 @@
 __author__ = 'jch'
 
 import oauth2 as oauth
-import urllib, json, urlparse, pickle
+import urllib, json, urlparse, pickle, re
 from credentials import API_KEY, API_SS
 from fuzzywuzzy import fuzz
 
@@ -74,9 +74,12 @@ class RdioClient(object):
     def get_best_match(self, term):
         response = self.call("search", {"query": term, "types": "Track"})
 
-        print " + Searching for %s" % term[0]
-        artist, track = term[0].lower().split(" - ");
+        print " + Searching for %s" % term
+        artist, track = term.lower().split(" - ");
 
+        artist = re.sub("\([^)]+\)", "", artist)
+        track = re.sub("\([^)]+\)", "", track)
+        
         for result in response["result"]["results"]:
             r_artist, r_track = result["artist"].lower(), result["name"].lower()
             artist_score, track_score = fuzz.partial_ratio(artist, r_artist), fuzz.partial_ratio(track, r_track)
@@ -84,10 +87,10 @@ class RdioClient(object):
             print "%s - %s (%d/%d)" % (r_artist, r_track, artist_score, track_score)
             
             if  artist_score > 75 and track_score > 75:
-                print " + Song added:     %s" % term[0]
+                print " + Song added:     %s" % term
                 return result["key"]
 
-        print " + Song not found: %s" % term[0]
+        print " + Song not found: %s" % term
         
         return None
         
