@@ -74,21 +74,26 @@ class RdioClient(object):
     def get_best_match(self, term):
         response = self.call("search", {"query": term, "types": "Track"})
 
+        # This is a hack that should be fixed
         print " + Searching for %s" % term
-        artist, track = term.lower().split(" - ");
-
+        try:
+            artist, track = term.lower().split(" - ")
+        except ValueError:
+            artist, whatever, track = term.lower().split(" - ")
+        
         artist = re.sub("\([^)]+\)", "", artist)
         track = re.sub("\([^)]+\)", "", track)
         
         for result in response["result"]["results"]:
             r_artist, r_track = result["artist"].lower(), result["name"].lower()
             artist_score, track_score = fuzz.partial_ratio(artist, r_artist), fuzz.partial_ratio(track, r_track)
-
+            at_score, ta_score = fuzz.partial_ratio(artist, r_track), fuzz.partial_ratio(track, r_artist)
+            
             print "%s - %s (%d/%d)" % (r_artist, r_track, artist_score, track_score)
             
-            if  artist_score > 75 and track_score > 75:
-                print " + Song added:     %s" % term
-                return result["key"]
+            if  artist_score > 75 and track_score > 75 or at_score > 75 and ta_score > 75:
+                print " + Song added:     %s - %s" % (r_artist, r_track)
+                return result["key"]          
 
         print " + Song not found: %s" % term
         

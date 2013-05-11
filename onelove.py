@@ -4,11 +4,14 @@ import requests, bs4, threading, time
 
 class OneLoveFM(threading.Thread):
     url = "http://1love.fm/last.php"
+    outfile = None
     callback = None
     
     def __init__(self, callback):
         threading.Thread.__init__(self)
         self.callback = callback
+        self.outfile = open('onelove.txt', 'a+')
+        self.daemon = True
         self.start()
 
     def run(self):
@@ -18,6 +21,9 @@ class OneLoveFM(threading.Thread):
             cur_track = self.get_cur_track()
 
             if cur_track != old_track:
+                self.outfile.write("%s\n" % cur_track.encode('utf8'))
+                self.outfile.flush()
+                
                 self.callback(cur_track)
                 old_track = cur_track
             
