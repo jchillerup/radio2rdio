@@ -1,7 +1,6 @@
 __author__ = 'jch'
 
 import signal
-from onelove import OneLoveFM
 from rdio import RdioClient
 from generic import GenericPoller
 
